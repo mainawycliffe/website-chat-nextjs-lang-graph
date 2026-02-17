@@ -1,14 +1,15 @@
-import * as fs from 'node:fs';
-import * as path from 'node:path';
-import { setTimeout as sleep } from 'node:timers/promises';
-
 import type { Document } from '@langchain/core/documents';
 import { GoogleGenerativeAIEmbeddings } from '@langchain/google-genai';
 import { RecursiveCharacterTextSplitter } from '@langchain/textsplitters';
 import * as cheerio from 'cheerio';
+import * as fs from 'node:fs';
+import * as path from 'node:path';
+import { setTimeout as sleep } from 'node:timers/promises';
 import pLimit from 'p-limit';
 import Sitemapper from 'sitemapper';
 import { LocalIndex } from 'vectra';
+
+const GEMINI_API_KEY = process.env['GEMINI_API_KEY'];
 
 const SITEMAP_URL = 'https://docs.langchain.com/sitemap.xml';
 const URL_PREFIX = 'https://docs.langchain.com/oss/javascript/langgraph/';
@@ -27,12 +28,6 @@ type Manifest = {
   embeddingModel: string;
   chunkCount: number;
 };
-
-function requiredEnv(name: string): string {
-  const value = process.env[name];
-  if (!value) throw new Error(`Missing env var: ${name}`);
-  return value;
-}
 
 function normalizeUrl(url: string): string {
   try {
@@ -82,8 +77,6 @@ async function getSitemapUrls(): Promise<string[]> {
 }
 
 async function main() {
-  const apiKey = requiredEnv('GEMINI_API_KEY');
-
   const pageLimit = Number(process.env.PAGE_LIMIT ?? '50');
   const concurrency = Number(process.env.CONCURRENCY ?? '3');
   const requestDelayMs = Number(process.env.REQUEST_DELAY_MS ?? '150');
@@ -107,7 +100,7 @@ async function main() {
   }
 
   const embeddings = new GoogleGenerativeAIEmbeddings({
-    apiKey,
+    apiKey: GEMINI_API_KEY,
     model: embeddingModel,
   });
 

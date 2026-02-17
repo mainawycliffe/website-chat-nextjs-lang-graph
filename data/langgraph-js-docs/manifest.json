@@ -1,0 +1,10 @@
+{
+  "createdAt": "2026-02-17T09:38:10.345Z",
+  "sourceSite": "https://docs.langchain.com",
+  "sitemapUrl": "https://docs.langchain.com/sitemap.xml",
+  "urlPrefix": "https://docs.langchain.com/oss/javascript/langgraph/",
+  "pageLimit": 50,
+  "selectedPageCount": 27,
+  "embeddingModel": "text-embedding-004",
+  "chunkCount": 396
+}
