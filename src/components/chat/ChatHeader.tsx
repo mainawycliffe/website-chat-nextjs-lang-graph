@@ -9,8 +9,8 @@ export function ChatHeader({ isStreaming, onStop }: ChatHeaderProps) {
   return (
     <header className='sticky top-0 z-10'>
       <div className='vibrant-glass backdrop-blur'>
-        <div className='flex items-center max-w-4xl mx-auto justify-between px-4 py-3'>
-          <div className='flex min-w-0 flex-col'>
+        <div className='flex items-center max-w-4xl mx-auto gap-4 justify-between px-4 py-3'>
+          <div className='flex flex-1 min-w-0 flex-col'>
             <div className='flex items-center gap-2 truncate text-sm font-semibold tracking-tight'>
               <span
                 className='h-2.5 w-2.5 rounded-full'
@@ -28,6 +28,12 @@ export function ChatHeader({ isStreaming, onStop }: ChatHeaderProps) {
           <Button type='button' variant='outline' onClick={onStop} disabled={!isStreaming} className='h-9'>
             Stop
           </Button>
+          <a
+            href='https://github.com/mainawycliffe/website-chat-nextjs-lang-graph'
+            target='_blank'
+            rel='noopener noreferrer'>
+            View on GitHub
+          </a>
         </div>
         <div className='vibrant-border h-px w-full' />
       </div>
