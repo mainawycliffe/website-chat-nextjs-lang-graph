@@ -14,10 +14,8 @@ type AgentInput = {
   message: string;
 };
 
-// This defines the persona and behavior guidelines for the agent, including how
-// it should use the search tool and format its responses.
-const systemPrompt = new SystemMessage(
-  [
+function buildSystemPrompt(opts?: { priorConversation?: string }) {
+  const rules = [
     'You are a website assistant for LangGraph JavaScript docs.',
     'Rules:',
     `- When the user asks about LangGraph, decide what to search for and call the tool search_langgraph_docs.`,
@@ -29,13 +27,22 @@ const systemPrompt = new SystemMessage(
     '- Output format: return Markdown. Use fenced code blocks (```lang) for any code. Ensure markdown is well-formatted and renders correctly.',
     '- Keep the answer short and concise. Use simple language, single examples and be clear.',
     "- At the end, include a 'Sources:' list with the doc URLs you used.",
-  ].join('\n'),
-);
+  ];
 
-export function createDocsAgent() {
+  const prior = opts?.priorConversation?.trim();
+  if (prior) {
+    rules.push('', 'Prior conversation (for continuity, do not repeat verbatim):', prior);
+  }
+
+  return new SystemMessage(rules.join('\n'));
+}
+
+export function createDocsAgent(opts?: { priorConversation?: string }) {
   if (!GEMINI_API_KEY) {
     throw new Error('Missing env var: GEMINI_API_KEY');
   }
+
+  const systemPrompt = buildSystemPrompt(opts);
 
   const model = new ChatGoogleGenerativeAI({
     apiKey: GEMINI_API_KEY,

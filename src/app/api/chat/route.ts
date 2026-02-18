@@ -1,9 +1,17 @@
+import { appendThreadMessages, loadThreadMessages } from '@/lib/chatMemory';
 import { buildInitialState, createDocsAgent } from '@/lib/langgraph/docsAgent';
 import { isAIMessage, isAIMessageChunk } from '@langchain/core/messages';
 
 type StreamBody = {
   // `FetchStreamTransport` posts `{ input, context, command }`.
   input?: { messages?: Array<{ type?: string; content?: unknown }> } | null;
+
+  // `useStream` includes config, and we rely on thread_id for memory.
+  config?: {
+    configurable?: {
+      thread_id?: string;
+    };
+  };
 };
 
 function sse(event: string, data: unknown) {
@@ -17,6 +25,11 @@ function createIds() {
       : `${Date.now()}-${Math.random().toString(16).slice(2)}`;
 
   return { runId, threadId: runId };
+}
+
+function pickThreadId(body: StreamBody | null): string {
+  const id = body?.config?.configurable?.thread_id;
+  return typeof id === 'string' && id.trim() ? id.trim() : '';
 }
 
 function pickUserText(body: StreamBody | null): string {
@@ -61,6 +74,8 @@ export async function POST(req: Request) {
   const body = (await req.json().catch(() => null)) as StreamBody | null;
   const userMessage = pickUserText(body);
 
+  const providedThreadId = pickThreadId(body);
+
   if (!userMessage) {
     return new Response(JSON.stringify({ error: 'Missing input message' }), {
       status: 400,
@@ -68,8 +83,16 @@ export async function POST(req: Request) {
     });
   }
 
-  const agent = createDocsAgent();
-  const { runId, threadId } = createIds();
+  const { runId, threadId: fallbackThreadId } = createIds();
+  const threadId = providedThreadId || fallbackThreadId;
+
+  const history = await loadThreadMessages(threadId);
+  const priorConversation = history
+    .filter((m) => m.content.trim())
+    .map((m) => `${m.role === 'human' ? 'User' : 'Assistant'}: ${m.content.trim()}`)
+    .join('\n');
+
+  const agent = createDocsAgent({ priorConversation });
   const encoder = new TextEncoder();
 
   const stream = new ReadableStream<Uint8Array>({
@@ -85,6 +108,7 @@ export async function POST(req: Request) {
         const inputs = buildInitialState({ message: userMessage });
         const messageId = `ai:${runId}`;
         let lastFullText = '';
+        let fullAssistantText = '';
 
         // Stream only AI text deltas; suppress tool calls/messages entirely (we
         // don't care about this for this project).
@@ -111,7 +135,14 @@ export async function POST(req: Request) {
 
           // IMPORTANT: `useStream` concatenates message chunks client-side.
           send('messages', [{ id: messageId, type: 'ai', content: delta }, {}]);
+          fullAssistantText += delta;
         }
+
+        // Persist this turn (only human + ai; never persist tool outputs).
+        await appendThreadMessages(threadId, [
+          { role: 'human', content: userMessage, ts: Date.now() },
+          ...(fullAssistantText.trim() ? [{ role: 'ai' as const, content: fullAssistantText, ts: Date.now() }] : []),
+        ]);
 
         controller.close();
       } catch (err) {

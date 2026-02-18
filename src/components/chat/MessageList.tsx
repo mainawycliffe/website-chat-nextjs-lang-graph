@@ -1,5 +1,4 @@
 import type { Message } from '@langchain/langgraph-sdk';
-import * as React from 'react';
 
 import { EmptyAssistantHint } from '@/components/chat/EmptyAssistantHint';
 import { MessageBubble } from '@/components/chat/MessageBubble';
@@ -8,10 +7,9 @@ type MessageListProps = {
   messages: Message[];
   isStreaming: boolean;
   error: unknown;
-  scrollRef: React.RefObject<HTMLDivElement | null>;
 };
 
-export function MessageList({ messages, isStreaming, error, scrollRef }: MessageListProps) {
+export function MessageList({ messages, isStreaming, error }: MessageListProps) {
   return (
     <div className='flex flex-col max-w-4xl mx-auto'>
       {messages.length === 0 ? <EmptyAssistantHint /> : null}
@@ -35,8 +33,6 @@ export function MessageList({ messages, isStreaming, error, scrollRef }: Message
           </div>
         </div>
       ) : null}
-
-      <div ref={scrollRef} />
     </div>
   );
 }

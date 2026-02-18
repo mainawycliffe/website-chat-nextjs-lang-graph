@@ -1,0 +1,15 @@
+{
+  "threadId": "c4d202a3-0f17-468d-b5a2-597e0783ca40",
+  "messages": [
+    {
+      "role": "human",
+      "content": "give an example of tool using?",
+      "ts": 1771401487553
+    },
+    {
+      "role": "ai",
+      "content": "You can create a retriever tool using `createRetrieverTool` from `@langchain/classic/tools/retriever`. This tool can then be bound to a language model using `.bindTools()`, allowing the model to decide when to use the tool for retrieval.\n\nHere's an example of how to create and use a retriever tool:\n\n```javascript\nimport { createRetrieverTool } from \"@langchain/classic/tools/retriever\";\nimport { MemoryVectorStore } from \"@langchain/classic/vectorstores/memory\";\nimport { OpenAIEmbeddings } from \"@langchain/openai\";\nimport { ChatOpenAI } from \"@langchain/openai\";\nimport { HumanMessage } from \"@langchain/core/messages\";\n\n// Assume docSplits is an array of preprocessed documents\nconst vectorStore = await MemoryVectorStore.fromDocuments(\n  docSplits,\n  new OpenAIEmbeddings(),\n);\nconst retriever = vectorStore.asRetriever();\n\nconst tool = createRetrieverTool(\n  retriever,\n  {\n    name: \"retrieve_blog_posts\",\n    description: \"Search and return information about Lilian Weng blog posts on LLM agents, prompt engineering, and adversarial attacks on LLMs.\",\n  },\n);\n\nconst tools = [tool];\n\nconst model = new ChatOpenAI({\n  model: \"gpt-4.1\",\n  temperature: 0,\n}).bindTools(tools);\n\nconst input = { messages: [new HumanMessage(\"What does Lilian Weng say about types of reward hacking?\")] };\nconst result = await model.invoke(input.messages);\nconsole.log(result.tool_calls);\n```\n\nIn this example, when a question requires semantic search, the model will generate a `tool_call` to `retrieve_blog_posts` with the appropriate query.\n\nSources:\n- https://docs.langchain.com/oss/javascript/langgraph/agentic-rag",
+      "ts": 1771401487553
+    }
+  ]
+}

@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 
 type ComposerProps = {
+  containerRef?: React.Ref<HTMLElement>;
   input: string;
   setInput: (value: string) => void;
   isStreaming: boolean;
@@ -12,9 +13,17 @@ type ComposerProps = {
   textareaRef: React.RefObject<HTMLTextAreaElement | null>;
 };
 
-export function Composer({ input, setInput, isStreaming, onSubmit, onRequestSend, textareaRef }: ComposerProps) {
+export function Composer({
+  containerRef,
+  input,
+  setInput,
+  isStreaming,
+  onSubmit,
+  onRequestSend,
+  textareaRef,
+}: ComposerProps) {
   return (
-    <footer className='sticky bottom-0'>
+    <footer ref={containerRef} className='sticky bottom-0'>
       <div className='vibrant-glass backdrop-blur'>
         <div className='max-w-4xl mx-auto px-4 py-4'>
           <form onSubmit={onSubmit} className='flex items-end gap-2'>
