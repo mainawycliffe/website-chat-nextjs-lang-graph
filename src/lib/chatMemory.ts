@@ -16,7 +16,9 @@ type ThreadFile = {
 const MAX_STORED_MESSAGES = 30;
 
 function threadDir() {
-  return path.join(process.cwd(), 'data', 'chat-memory');
+  // On Vercel (and other serverless platforms), only /tmp is writable.
+  const base = process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME ? '/tmp' : path.join(process.cwd(), 'data');
+  return path.join(base, 'chat-memory');
 }
 
 function threadPath(threadId: string) {
