@@ -1,36 +1,51 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# LangGraph Docs Chat
 
-## Getting Started
+A tiny Next.js chat app that answers questions about **LangGraph (JavaScript)**
+using a file based vector index ([Vectra](https://github.com/Stevenic/vectra)),
+powered by LangGraph and Gemini.
 
-First, run the development server:
+Live Demo: https://lang-graph-docs-chat.vercel.app/
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## Prerequisites
+
+- Node.js 22+ (tested on 24)
+- pnpm
+- `GEMINI_API_KEY`
+
+## Getting the API key
+
+You can get an API Key for Gemini for free at AI Studio:
+https://ai.google.dev/
+
+### Set the API key in your environment:
+
+Add a `.env.local` file in the root of the project with the following content:
+
+```env
+GEMINI_API_KEY=your_api_key_here
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Run it
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+pnpm install
+pnpm dev
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Open [http://localhost:3000](http://localhost:3000)
 
-## Learn More
+## Index the docs
 
-To learn more about Next.js, take a look at the following resources:
+Docs are already indexed in a local vector index (Vectra) and included in the repo, but if you want to re-index:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+export GEMINI_API_KEY=your_key_here
+pnpm run index:langgraph
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Notes
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- The local index is stored in `data/langgraph-js-docs/vectra-index/`.
+- I only indexed Javascript/Typescript LangGraph docs, not Python and not
+  LangChain Docs, for time and cost reasons, but can be easily extended to
+  include those as well.
